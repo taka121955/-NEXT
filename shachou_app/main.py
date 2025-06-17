@@ -1,60 +1,64 @@
 import streamlit as st
 from datetime import datetime
+import base64
+from io import BytesIO
+from PIL import Image
 
 st.set_page_config(page_title="社長秘書エリカ", layout="wide")
 
-# === CSSスタイル定義 ===
+# === 白石えりか画像を中央・大きく表示 ===
+def show_center_image(uploaded_image):
+    img = Image.open(uploaded_image)
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    st.markdown(f"""
+        <style>
+        .erika-center-img {{
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 40%;
+            max-width: 300px;
+        }}
+        @media (max-width: 768px) {{
+            .erika-center-img {{
+                width: 70%;
+            }}
+        }}
+        </style>
+        <img src="data:image/png;base64,{img_str}" class="erika-center-img">
+    """, unsafe_allow_html=True)
+
+# === 共通スタイル（フォントなど） ===
 st.markdown("""
     <style>
-    /* サイドバーのスクロール対応 */
     section[data-testid="stSidebar"] > div:first-child {
         height: 100vh;
         overflow-y: auto;
     }
-
-    /* 入力欄の見た目調整 */
-    .css-18e3th9 {padding: 1rem 2rem !important;}
-    .css-1d391kg {padding-top: 0rem !important;}
-    .css-ffhzg2 {text-align: center !important;}
     .stTextInput > div > input {
         text-align: center;
         font-size: 18px;
     }
-
-    /* 白石えりかの全身画像を右下に表示 */
-    .erika-img {
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-        width: 110px;
-        z-index: 100;
-        opacity: 0.95;
-    }
-
-    @media (max-width: 768px) {
-        .erika-img {
-            width: 80px;
-        }
-    }
     </style>
-
-    <!-- 👇 画像の表示（画像IDを差し替えてください） -->
-    <img src="https://drive.google.com/uc?id=YOUR_IMAGE_ID" class="erika-img">
 """, unsafe_allow_html=True)
 
-# === タイトル＆時刻表示 ===
+# === 上部ヘッダー ===
 now = datetime.now().strftime("%Y年%m月%d日 %H:%M:%S")
 st.markdown(f"""
 ## 🏢 &NEXT合同会社 ｜ 社長秘書エリカ
 ### 🕒 現在時刻（日本時間）：{now}
-
----
-
-### 💬 白石えりか（社長秘書）
-#### 📢 社長、ご用件をどうぞ。
 """)
 
-# === 入力欄と送信ボタン ===
+# === 中央に白石えりかの画像を表示 ===
+show_center_image("C218EBE1-DA82-44F7-83DE-74C4DE20DEC3.jpeg")
+
+# === 入力エリア ===
+st.markdown("---")
+st.markdown("### 💬 白石えりか（社長秘書）")
+st.markdown("#### 📢 社長、ご用件をどうぞ。")
+
 command = st.text_input("社長のご指示を入力してください", label_visibility="collapsed")
 if st.button("📨 指示を送信"):
     if command.strip():
@@ -63,6 +67,5 @@ if st.button("📨 指示を送信"):
     else:
         st.warning("⚠️ ご指示が未入力です。")
 
-# === 制作者名 ===
 st.markdown("---")
 st.markdown("👤 制作者：小島崇彦")
